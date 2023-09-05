@@ -1,0 +1,30 @@
+/* Reset some default browser styles */
+body, h1, h2, p {
+    margin: 0;
+    padding: 0;
+}
+
+/* Set a background color or image */
+body {
+    background-color: #f0f0f0; /* Replace with your preferred background color */
+    font-family: Arial, sans-serif; /* Choose a suitable font */
+}
+
+/* Style the header */
+header {
+    background-color: #333; /* Header background color */
+    color: #fff; /* Header text color */
+    text-align: center;
+    padding: 20px;
+}
+
+/* Style links */
+a {
+    color: #007BFF; /* Link color */
+    text-decoration: none;
+}
+
+/* Style links on hover */
+a:hover {
+    text-decoration: underline;
+}
