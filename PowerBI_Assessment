@@ -1,0 +1,256 @@
+IF 1=0
+BEGIN
+    SET NOEXEC OFF
+    -- If we got into this loop then NO EXEC was still ON.
+	-- This is possibly due to a previous error when creating the ELPConsultingTest database.
+	-- This code block should switch it off and allow normal execution to continue.
+END
+
+USE [master]
+GO
+
+/****** Object:  Database [ELPConsultingTest]     ******/
+CREATE DATABASE [ELPConsultingTest]
+ -- Uses defaults for data and log locations and all other db properties.
+GO
+
+-- Change to ELPConsultingTest DB
+USE [ELPConsultingTest]
+GO
+
+IF ((SELECT DB_NAME()) != 'ELPConsultingTest')
+BEGIN
+	PRINT 'Unable to change to ELPConsultingTest Database.  Setting NOEXEC ON so the following statements are not run.'
+	SET NOEXEC ON;  -- Note:  This will cause statments to not be run since we 
+					-- don't seem to be in the ELPConsultingTest database.  Don't want to create all these objects
+					-- in the incorrect database.
+
+	-- NO EXEC can be switched off with the following.  The end of ths script will also switch NO EXEC off again.
+	-- SET NOEXEC OFF  
+END
+GO
+
+/****** Object:  Schema [stg]     ******/
+CREATE SCHEMA [stg]
+GO
+
+/****** Object:  Table [dbo].[DimCustomer]     ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DimCustomer](
+	[DimCustomerID] [int] NOT NULL,
+	[CustomerName] [varchar](50) NOT NULL
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [dbo].[FactBondBalance]     ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[FactBondBalance](
+	[DimCustomerID] [int] NOT NULL,
+	[BalanceDate] [date] NOT NULL,
+	[Balance] [decimal](10, 2) NOT NULL
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [dbo].[FactCreditCardBalance]    ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[FactCreditCardBalance](
+	[DimCustomerID] [int] NOT NULL,
+	[BalanceDate] [date] NOT NULL,
+	[Balance] [decimal](10, 2) NOT NULL
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [stg].[LedgerEntity]     ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [stg].[LedgerEntity](
+	[RecordID] [int] NOT NULL,
+	[ChartOfAccountsName] [varchar](100) NOT NULL,
+	[ChartOfAccountsDescription] [varchar](100) NOT NULL,
+	[CreateDateTime] [datetime] NOT NULL,
+	[ModifiedDateTime] [datetime] NOT NULL
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [stg].[LegalEntity]     ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [stg].[LegalEntity](
+	[RecordID] [int] NOT NULL,
+	[LegalEntityName] [varchar](100) NOT NULL,
+	[LegalEntityAlias] [varchar](100) NOT NULL,
+	[RegionCode] [varchar](3) NOT NULL,
+	[LedgerEntityRecID] [int] NOT NULL,
+	[CreateDateTime] [datetime] NOT NULL,
+	[ModifiedDateTime] [datetime] NOT NULL
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [stg].[RegionCodes]     ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [stg].[RegionCodes](
+	[CountryName] [varchar](200) NOT NULL,
+	[RegionShortCode] [varchar](2) NOT NULL,
+	[RegionCode] [varchar](3) NOT NULL,
+	[RegionNumber] [varchar](10) NOT NULL
+) ON [PRIMARY]
+GO
+
+INSERT [dbo].[DimCustomer] ([DimCustomerID], [CustomerName]) VALUES (1, N'John Smith')
+INSERT [dbo].[DimCustomer] ([DimCustomerID], [CustomerName]) VALUES (2, N'Clare de Vos')
+INSERT [dbo].[DimCustomer] ([DimCustomerID], [CustomerName]) VALUES (3, N'Tsepho Molodi')
+INSERT [dbo].[DimCustomer] ([DimCustomerID], [CustomerName]) VALUES (4, N'Rajeesh Singh')
+GO
+
+INSERT [dbo].[FactBondBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (1, CAST(N'2018-12-01' AS Date), CAST(120000.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactBondBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (2, CAST(N'2019-01-01' AS Date), CAST(200000.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactBondBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (2, CAST(N'2019-02-01' AS Date), CAST(198000.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactBondBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (2, CAST(N'2019-03-01' AS Date), CAST(196000.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactBondBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (3, CAST(N'2019-01-01' AS Date), CAST(600000.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactBondBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (4, CAST(N'2019-01-01' AS Date), CAST(450000.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactBondBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (4, CAST(N'2019-02-01' AS Date), CAST(445000.00 AS Decimal(10, 2)))
+GO
+
+INSERT [dbo].[FactCreditCardBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (1, CAST(N'2019-01-01' AS Date), CAST(2000.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactCreditCardBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (1, CAST(N'2019-02-01' AS Date), CAST(2500.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactCreditCardBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (2, CAST(N'2019-02-01' AS Date), CAST(1250.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactCreditCardBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (3, CAST(N'2019-01-01' AS Date), CAST(800.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactCreditCardBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (3, CAST(N'2019-02-01' AS Date), CAST(120.00 AS Decimal(10, 2)))
+INSERT [dbo].[FactCreditCardBalance] ([DimCustomerID], [BalanceDate], [Balance]) VALUES (4, CAST(N'2019-01-01' AS Date), CAST(600.00 AS Decimal(10, 2)))
+GO
+
+INSERT [stg].[LedgerEntity] ([RecordID], [ChartOfAccountsName], [ChartOfAccountsDescription], [CreateDateTime], [ModifiedDateTime]) VALUES (44554845, N'STD_COA', N'Standard Chart of Accounts (Current)', CAST(N'2021-11-10T11:51:00.000' AS DateTime), CAST(N'2021-11-10T11:51:00.000' AS DateTime))
+INSERT [stg].[LedgerEntity] ([RecordID], [ChartOfAccountsName], [ChartOfAccountsDescription], [CreateDateTime], [ModifiedDateTime]) VALUES (44554863, N'EXT_COA', N'Extended Chart of Accounts (Current)', CAST(N'2021-11-12T11:17:00.000' AS DateTime), CAST(N'2021-11-12T11:17:00.000' AS DateTime))
+INSERT [stg].[LedgerEntity] ([RecordID], [ChartOfAccountsName], [ChartOfAccountsDescription], [CreateDateTime], [ModifiedDateTime]) VALUES (44548824, N'MIN_COA', N'Minimum Chart of Accounts (Current)', CAST(N'2021-11-08T14:51:00.000' AS DateTime), CAST(N'2021-11-08T14:51:00.000' AS DateTime))
+INSERT [stg].[LedgerEntity] ([RecordID], [ChartOfAccountsName], [ChartOfAccountsDescription], [CreateDateTime], [ModifiedDateTime]) VALUES (44548819, N'STD_COA_2020', N'Standard Chart of Accounts (2020)', CAST(N'2021-11-07T00:00:00.000' AS DateTime), CAST(N'2021-11-07T00:00:00.000' AS DateTime))
+GO
+
+INSERT [stg].[LegalEntity] ([RecordID], [LegalEntityName], [LegalEntityAlias], [RegionCode], [LedgerEntityRecID], [CreateDateTime], [ModifiedDateTime]) VALUES (56421612, N'The Small Green Apple', N'Green', N'ZAF', 44554845, CAST(N'2021-11-10T13:27:00.000' AS DateTime), CAST(N'2021-11-10T13:27:00.000' AS DateTime))
+INSERT [stg].[LegalEntity] ([RecordID], [LegalEntityName], [LegalEntityAlias], [RegionCode], [LedgerEntityRecID], [CreateDateTime], [ModifiedDateTime]) VALUES (56428895, N'The Singing Fig Tree', N'FigTree', N'ZAF', 44554863, CAST(N'2021-11-11T14:55:00.000' AS DateTime), CAST(N'2021-11-11T14:55:00.000' AS DateTime))
+INSERT [stg].[LegalEntity] ([RecordID], [LegalEntityName], [LegalEntityAlias], [RegionCode], [LedgerEntityRecID], [CreateDateTime], [ModifiedDateTime]) VALUES (56429958, N'The Honey Bee', N'Honey', N'RWA', 44554845, CAST(N'2021-11-11T16:07:00.000' AS DateTime), CAST(N'2021-11-11T16:07:00.000' AS DateTime))
+INSERT [stg].[LegalEntity] ([RecordID], [LegalEntityName], [LegalEntityAlias], [RegionCode], [LedgerEntityRecID], [CreateDateTime], [ModifiedDateTime]) VALUES (56429980, N'House of Orange Marmalade', N'Orange', N'SEN', 44548824, CAST(N'2021-11-11T17:59:00.000' AS DateTime), CAST(N'2021-11-11T17:59:00.000' AS DateTime))
+GO
+
+INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Rwanda', N'RW', N'RWA', N'646')
+INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Senegal', N'SN', N'SEN', N'686')
+INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'South Africa', N'ZA', N'ZAF', N'710')
+INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Uganda', N'UG', N'UGA', N'800')
+INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Zambia', N'ZM', N'ZMB', N'894')
+INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Zimbabwe', N'ZW', N'ZWE', N'716')
+GO
+
+/****** Object:  StoredProcedure [stg].[sp_Change_Entity_1]    ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [stg].[sp_Change_Entity_1]
+AS
+
+	UPDATE [stg].[LegalEntity]
+		SET RegionCode = 'ZMB',
+			ModifiedDateTime = GETDATE()
+		WHERE RecordID = 56421612;
+
+	UPDATE [stg].[LegalEntity]
+		SET LegalEntityName = 'The Wildflower Honey Bee',
+			ModifiedDateTime = GETDATE()
+		WHERE RecordID = 56429958;
+	
+RETURN 0
+GO
+
+/****** Object:  StoredProcedure [stg].[sp_Change_Entity_2]     ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [stg].[sp_Change_Entity_2]
+AS
+
+	UPDATE [stg].[LegalEntity]
+		SET RegionCode = 'UGA',
+			ModifiedDateTime = GETDATE()
+		WHERE RecordID = 56421612;
+
+	UPDATE [stg].[LegalEntity]
+		SET RegionCode = 'ZMB',
+			ModifiedDateTime = GETDATE()
+		WHERE RecordID = 56429958;
+
+	INSERT [stg].[LegalEntity] ([RecordID], [LegalEntityName], [LegalEntityAlias], [RegionCode], [LedgerEntityRecID], [CreateDateTime], [ModifiedDateTime]) VALUES (56482213, N'Fish and Fowl', N'Fishbird', N'ZWE', 44554863, GETDATE(), GETDATE());
+	
+	UPDATE [stg].[LedgerEntity]
+		SET ChartOfAccountsDescription = 'Extended Chart of Accounts (All)',
+			ModifiedDateTime = GETDATE()
+	WHERE RecordID = 44554863;
+
+RETURN 0
+GO
+
+/****** Object:  StoredProcedure [stg].[sp_Change_Entity_3]     ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [stg].[sp_Change_Entity_3]
+AS
+	INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Angola', N'AO', N'AGO', N'024');
+	INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Cameroon', N'CM', N'CMR', N'120');
+	INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Eygpt', N'EG', N'EGY', N'818');
+RETURN 0
+GO
+
+/****** Object:  StoredProcedure [stg].[sp_Reset_EntityTables]     ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [stg].[sp_Reset_EntityTables]
+AS
+	TRUNCATE TABLE [stg].[LegalEntity];
+
+	INSERT [stg].[LegalEntity] ([RecordID], [LegalEntityName], [LegalEntityAlias], [RegionCode], [LedgerEntityRecID], [CreateDateTime], [ModifiedDateTime]) VALUES (56421612, N'The Small Green Apple', N'Green', N'ZAF', 44554845, CAST(N'2021-11-10T13:27:00.000' AS DateTime), CAST(N'2021-11-10T13:27:00.000' AS DateTime));
+	INSERT [stg].[LegalEntity] ([RecordID], [LegalEntityName], [LegalEntityAlias], [RegionCode], [LedgerEntityRecID], [CreateDateTime], [ModifiedDateTime]) VALUES (56428895, N'The Singing Fig Tree', N'FigTree', N'ZAF', 44554863, CAST(N'2021-11-11T14:55:00.000' AS DateTime), CAST(N'2021-11-11T14:55:00.000' AS DateTime));
+	INSERT [stg].[LegalEntity] ([RecordID], [LegalEntityName], [LegalEntityAlias], [RegionCode], [LedgerEntityRecID], [CreateDateTime], [ModifiedDateTime]) VALUES (56429958, N'The Honey Bee', N'Honey', N'RWA', 44554845, CAST(N'2021-11-11T16:07:00.000' AS DateTime), CAST(N'2021-11-11T16:07:00.000' AS DateTime));
+	INSERT [stg].[LegalEntity] ([RecordID], [LegalEntityName], [LegalEntityAlias], [RegionCode], [LedgerEntityRecID], [CreateDateTime], [ModifiedDateTime]) VALUES (56429980, N'House of Orange Marmalade', N'Orange', N'SEN', 44548824, CAST(N'2021-11-11T17:59:00.000' AS DateTime), CAST(N'2021-11-11T17:59:00.000' AS DateTime));
+
+	TRUNCATE TABLE [stg].[LedgerEntity];
+
+	INSERT [stg].[LedgerEntity] ([RecordID], [ChartOfAccountsName], [ChartOfAccountsDescription], [CreateDateTime], [ModifiedDateTime]) VALUES (44554845, N'STD_COA', N'Standard Chart of Accounts (Current)', CAST(N'2021-11-10T11:51:00.000' AS DateTime), CAST(N'2021-11-10T11:51:00.000' AS DateTime));
+	INSERT [stg].[LedgerEntity] ([RecordID], [ChartOfAccountsName], [ChartOfAccountsDescription], [CreateDateTime], [ModifiedDateTime]) VALUES (44554863, N'EXT_COA', N'Extended Chart of Accounts (Current)', CAST(N'2021-11-12T11:17:00.000' AS DateTime), CAST(N'2021-11-12T11:17:00.000' AS DateTime));
+	INSERT [stg].[LedgerEntity] ([RecordID], [ChartOfAccountsName], [ChartOfAccountsDescription], [CreateDateTime], [ModifiedDateTime]) VALUES (44548824, N'MIN_COA', N'Minimum Chart of Accounts (Current)', CAST(N'2021-11-08T14:51:00.000' AS DateTime), CAST(N'2021-11-08T14:51:00.000' AS DateTime));
+	INSERT [stg].[LedgerEntity] ([RecordID], [ChartOfAccountsName], [ChartOfAccountsDescription], [CreateDateTime], [ModifiedDateTime]) VALUES (44548819, N'STD_COA_2020', N'Standard Chart of Accounts (2020)', CAST(N'2021-11-07T00:00:00.000' AS DateTime), CAST(N'2021-11-07T00:00:00.000' AS DateTime));
+
+	TRUNCATE TABLE [stg].[RegionCodes];
+
+	INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Rwanda', N'RW', N'RWA', N'646');
+	INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Senegal', N'SN', N'SEN', N'686');
+	INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'South Africa', N'ZA', N'ZAF', N'710');
+	INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Uganda', N'UG', N'UGA', N'800');
+	INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Zambia', N'ZM', N'ZMB', N'894');
+	INSERT [stg].[RegionCodes] ([CountryName], [RegionShortCode], [RegionCode], [RegionNumber]) VALUES (N'Zimbabwe', N'ZW', N'ZWE', N'716');
+
+RETURN 0
+GO
+
+-- If an Error occured when switching to the ELPConsultingTest database then NOEXEC would be ON at this point.
+--   Switch it back OFF so that further runs will work - although the database error/issue would have to be fixed.
+SET NOEXEC OFF;
+GO
